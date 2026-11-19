@@ -10,7 +10,7 @@
 - [x] T004 — Implementar API de videojuegos.
 
 ## Frontend
-- [ ] T005 — Crear catálogo e integrar API.
+- [x] T005 — Crear catálogo e integrar API.
 
 ## Funcionalidades comunitarias
 - [ ] T006 — Implementar favoritos y reseñas.
