@@ -404,3 +404,194 @@ main { flex: 1; }
   .seccion-titulo h2 { font-size: 24px; }
   .footer-contenido { flex-direction: column; }
 }
+
+
+/* Biblioteca de favoritos */
+.biblioteca-demo {
+  padding: 25px;
+  margin: 0 0 45px;
+  border: 1px solid #493665;
+  border-radius: 18px;
+  background: #191527;
+}
+
+.biblioteca-demo h2 {
+  margin: 0 0 8px;
+}
+
+.biblioteca-demo p {
+  color: #a2a5b7;
+  font-size: 14px;
+}
+
+.favoritos-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.favorito-item {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #62458b;
+  background: #302346;
+  color: #e6d5ff;
+  font-weight: 700;
+}
+
+.favorito-item:hover {
+  background: #473064;
+}
+
+/* Comunidad y reseñas */
+.comunidad {
+  grid-column: 1 / -1;
+  padding: 30px 0 5px;
+  border-top: 1px solid #2b2d3b;
+}
+
+.comunidad-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.comunidad h2 {
+  margin: 0 0 8px;
+}
+
+.comunidad h3 {
+  font-size: 19px;
+  margin: 0 0 20px;
+}
+
+.comunidad p {
+  color: #a2a5b7;
+  line-height: 1.6;
+}
+
+.aviso-demo {
+  font-size: 12px;
+}
+
+.btn-favorito {
+  padding: 13px 18px;
+  border: 1px solid #8856bc;
+  border-radius: 10px;
+  background: #382449;
+  color: #f2d9ff;
+  font-weight: 700;
+}
+
+.btn-favorito:hover {
+  background: #513365;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.comunidad-columnas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.resena-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resena-form label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.resena-form select,
+.resena-form textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #393447;
+  border-radius: 10px;
+  background: #10121d;
+  color: white;
+  font: inherit;
+}
+
+.resena-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.resena-form small {
+  color: #a2a5b7;
+}
+
+.resena-form .btn-principal {
+  margin-top: 5px;
+}
+
+.promedio {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fbbf24 !important;
+}
+
+.resenas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.resena-card {
+  padding: 18px;
+  border: 1px solid #323346;
+  background: #11131f;
+  border-radius: 12px;
+}
+
+.resena-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.resena-cabecera span {
+  color: #fbbf24;
+}
+
+.resena-card p {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+.aviso-error {
+  color: #fca5a5 !important;
+}
+
+.aviso-exito {
+  color: #86efac !important;
+}
+
+@media (max-width: 700px) {
+  .comunidad-columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .comunidad {
+    padding-top: 24px;
+  }
+
+  .biblioteca-demo {
+    padding: 20px;
+  }
+}

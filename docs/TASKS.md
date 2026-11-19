@@ -13,7 +13,7 @@
 - [x] T005 — Crear catálogo e integrar API.
 
 ## Funcionalidades comunitarias
-- [ ] T006 — Implementar favoritos y reseñas.
+- [x] T006 — Implementar favoritos y reseñas.
 
 ## Calidad y entrega
 - [ ] T007 — Agregar pruebas y corregir errores.

@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import './App.css';
+import { Comunidad, BibliotecaDemo } from './Comunidad.jsx';
 
 const API_URL = (
   import.meta.env.VITE_API_URL || 'http://localhost:3000'
@@ -46,6 +47,7 @@ export default function App() {
   const [juegoActivo, setJuegoActivo] = useState(null);
   const [detalleCargando, setDetalleCargando] = useState(false);
   const [detalleError, setDetalleError] = useState('');
+  const [revisionFavoritos, setRevisionFavoritos] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -172,7 +174,10 @@ export default function App() {
                 <span>SV</span>
               </div>
             </section>
-
+                <BibliotecaDemo
+                  onVer={verJuego}
+                  revision={revisionFavoritos}
+                />
             <section id="catalogo" className="catalogo">
               <div className="seccion-titulo">
                 <div>
@@ -301,6 +306,12 @@ export default function App() {
                     El enlace abre una plataforma externa.
                   </p>
                 </div>
+                    <Comunidad
+                    juego={juegoActivo}
+                    onCambioFavoritos={() =>
+                      setRevisionFavoritos(valor => valor + 1)
+                    }
+                  />
               </div>
             ) : null}
           </section>
