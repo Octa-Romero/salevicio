@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { pool } from './db/pool.js';
+import juegosRouter from './routes/juegos.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,8 @@ app.get('/api/health/db', async (req, res) => {
     });
   }
 });
+
+app.use('/api/juegos', juegosRouter);
 
 app.listen(PORT, () => {
   console.log(`API funcionando en http://localhost:${PORT}`);

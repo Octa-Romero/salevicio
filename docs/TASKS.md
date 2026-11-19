@@ -3,11 +3,11 @@
 
 ## Preparación
 - [x] T001 — Inicializar React y Express.
-- [ ] T002 — Definir especificación y planificación.
+- [x] T002 — Definir especificación y planificación.
 
 ## Backend y base de datos
-- [ ] T003 — Crear y conectar PostgreSQL.
-- [ ] T004 — Implementar API de videojuegos.
+- [x] T003 — Crear y conectar PostgreSQL.
+- [x] T004 — Implementar API de videojuegos.
 
 ## Frontend
 - [ ] T005 — Crear catálogo e integrar API.
