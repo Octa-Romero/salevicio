@@ -1,0 +1,41 @@
+-- Migración no destructiva: aplicar en Neon DESPUÉS de 001 y 002.
+BEGIN;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS email VARCHAR(254);
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS biografia VARCHAR(240) NOT NULL DEFAULT '';
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW();
+CREATE UNIQUE INDEX IF NOT EXISTS usuarios_email_ci ON usuarios(LOWER(email)) WHERE email IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS usuarios_nombre_ci ON usuarios(LOWER(nombre));
+CREATE TABLE IF NOT EXISTS sesiones (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  expira_en TIMESTAMPTZ NOT NULL,
+  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS sesiones_por_usuario ON sesiones(usuario_id);
+CREATE TABLE IF NOT EXISTS hilos (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+  juego_id INTEGER NOT NULL REFERENCES juegos(id),
+  titulo VARCHAR(120) NOT NULL CHECK (char_length(titulo) BETWEEN 8 AND 120),
+  contenido TEXT NOT NULL CHECK (char_length(contenido) BETWEEN 20 AND 2000),
+  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS hilos_por_juego ON hilos(juego_id, creado_en DESC);
+CREATE TABLE IF NOT EXISTS respuestas_hilo (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  hilo_id BIGINT NOT NULL REFERENCES hilos(id) ON DELETE CASCADE,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+  contenido TEXT NOT NULL CHECK (char_length(contenido) BETWEEN 3 AND 1000),
+  creado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS novedades (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  titulo VARCHAR(160) NOT NULL UNIQUE,
+  resumen VARCHAR(600) NOT NULL,
+  tipo VARCHAR(25) NOT NULL DEFAULT 'plataforma',
+  fuente_url TEXT CHECK (fuente_url IS NULL OR fuente_url ~ '^https://'),
+  publicado_en TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+COMMIT;
