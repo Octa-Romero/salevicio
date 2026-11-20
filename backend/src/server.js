@@ -4,6 +4,8 @@ import cors from 'cors';
 import { pool } from './db/pool.js';
 import juegosRouter from './routes/juegos.routes.js';
 import comunidadRouter from './routes/comunidad.routes.js';
+import authRouter from './routes/auth.routes.js';
+import forosRouter from './routes/foros.routes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +23,9 @@ app.use(cors({
   origin: origenesPermitidos
 }));
 
-app.use(express.json());
+app.use(express.json({limit:'16kb'}));
+app.disable('x-powered-by');
+app.use((req,res,next)=>{res.set('X-Content-Type-Options','nosniff');res.set('Referrer-Policy','no-referrer');next();});
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -48,9 +52,11 @@ app.get('/api/health/db', async (req, res) => {
   }
 });
 
+app.use('/api/auth',authRouter);
 app.use('/api/juegos', juegosRouter);
 
 app.use('/api', comunidadRouter);
+app.use('/api', forosRouter);
 
 
 app.listen(PORT, '0.0.0.0', () => {
