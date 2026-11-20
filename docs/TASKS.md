@@ -16,7 +16,7 @@
 - [x] T006 — Implementar favoritos y reseñas.
 
 ## Calidad y entrega
-- [ ] T007 — Agregar pruebas y corregir errores.
+- [x] T007 — Agregar pruebas y corregir errores.
 - [ ] T008 — Desplegar y finalizar documentación.
 
 ## Criterio de finalización
