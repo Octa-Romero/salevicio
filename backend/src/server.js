@@ -8,9 +8,19 @@ import comunidadRouter from './routes/comunidad.routes.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+const origenesPermitidos = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173'
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+  origin: origenesPermitidos
 }));
+
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
@@ -42,6 +52,7 @@ app.use('/api/juegos', juegosRouter);
 
 app.use('/api', comunidadRouter);
 
-app.listen(PORT, () => {
-  console.log(`API funcionando en http://localhost:${PORT}`);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`SaleVicio API ejecutándose en puerto ${PORT}`);
 });
