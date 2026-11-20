@@ -1,65 +1,50 @@
+# SaleVicio 2.0 — informe de verificaciones
 
-# SaleVicio — Informe de pruebas
+**Estado: revisión de código terminada; pruebas de integración y despliegue pendientes.** Este documento distingue lo ejecutado de lo preparado para que no parezca que la nueva versión ya se probó contra Neon.
 
-## 1. Objetivo
-Verificar que las funcionalidades esenciales del prototipo
-cumplen los requisitos y reglas de negocio establecidos
-en la especificación funcional.
+## Verificado en este entorno
 
-## 2. Entorno
-- Backend: Node.js + Express.
-- Frontend: React + Vite.
-- Base de datos: PostgreSQL (Neon).
-- Herramientas: node:test, Supertest y navegador web.
+- `node --check` en los archivos JS del backend y tests: **sin errores de sintaxis**.
+- Análisis de los 7 archivos `.jsx`/`.js` de React con el transpilador TypeScript JSX: **sin errores sintácticos**.
+- `node --test backend/tests/passwords.test.js`: **3/3 pruebas aprobadas** (hash y verificación con scrypt; sal distinta en cada hash; longitud válida de contraseña).
+- Comprobación de que los archivos `.env` reales no están en el repositorio: pendiente de repetir justo antes de la publicación.
 
-## 3. Pruebas automatizadas
+## Preparado, no ejecutado acá
 
-Las pruebas se encuentran en backend/tests/api.test.js.
+Se sustituyó la suite antigua (basada en usuario demo compartido) por `backend/tests/api.test.js`. Usa Supertest y mocks de `pool.query`, sin alterar Neon. Cubre catálogo, búsqueda parametrizada, registro, duplicados, login inválido, acceso autenticado, favoritos por usuario, validaciones de reseñas, autor de reseña, foros públicos y creación protegida.
 
-| ID | Caso | Resultado |
-|---|---|---|
-| P001 | Consultar catálogo | Pendiente |
-| P002 | Rechazar ID inválido | Pendiente |
-| P003 | Consultar juego inexistente | Pendiente |
-| P004 | Rechazar favorito duplicado | Pendiente |
-| P005 | Rechazar favorito inexistente | Pendiente |
-| P006 | Agregar favorito válido | Pendiente |
-| P007 | Rechazar puntuación inválida | Pendiente |
-| P008 | Rechazar comentario corto | Pendiente |
-| P009 | Publicar reseña válida | Pendiente |
+**No se puede marcar como «aprobada»**: la instalación `npm ci` no completó en este entorno (dependencias externas no disponibles). También falta correr `npm run build` y `npm run lint` de frontend. Ejecutar en PC:
 
-## 4. Pruebas manuales
+```bash
+cd backend
+npm ci
+npm test
+cd ../frontend
+npm ci
+npm run build
+npm run lint
+```
 
-| ID | Caso | Resultado |
-|---|---|---|
-| M001 | Abrir catálogo en navegador | Pendiente |
-| M002 | Buscar videojuegos | Pendiente |
-| M003 | Filtrar por género | Pendiente |
-| M004 | Consultar ficha individual | Pendiente |
-| M005 | Abrir enlace oficial | Pendiente |
-| M006 | Guardar y quitar favoritos | Pendiente |
-| M007 | Publicar una reseña | Pendiente |
-| M008 | Recargar y comprobar persistencia | Pendiente |
-| M009 | Verificar diseño móvil | Pendiente |
-| M010 | Compilar frontend | Pendiente |
+Registrar resultados reales al finalizar, corregir errores antes de desplegar y no asumir éxito por la revisión sintáctica.
 
-## 5. Evidencia
-Registrar los comandos ejecutados y sus resultados.
+## Pruebas manuales pendientes después de SQL 003/004 y deploy
 
-- npm test: pendiente.
-- npm run build: pendiente.
-- Comprobación de persistencia en Neon: pendiente.
-- Comprobación del despliegue público: pendiente.
+| Caso | Esperado |
+|---|---|
+| Catálogo y filtros | Muestra juegos y filtra por nombre y género |
+| Ficha y enlaces | Enlace HTTPS válido y requisitos consultados en tienda oficial |
+| Registro | Crea cuenta con contraseña >=12 y no admite duplicados |
+| Login/logout | Recupera sesión válida y la revoca al cerrar |
+| Favoritos | Guardar/quitar persiste tras recargar |
+| Dos usuarios | Bibliotecas diferentes, sin filtrar datos de otro usuario |
+| Reseñas | Rango 1–5, longitud 10–500, autor correcto |
+| Foros | Hilo y respuesta, filtro por juego, eliminación solo por autor |
+| Noticias | Publicaciones editoriales, no noticias inventadas |
+| Móvil y escritorio | Menú, tarjetas y formularios utilizables |
+| Apariencia | Claro/oscuro y preferencia guardada |
+| Errores de API | 400/401/404/409/503 apropiados |
+| Recarga y privacidad | Sesión/favoritos persistentes solo para usuario activo |
 
-## 6. Limitaciones
-El prototipo utiliza un usuario de demostración compartido.
+## Limitaciones
 
-Las pruebas automatizadas simulan respuestas de PostgreSQL.
-Por lo tanto, no sustituyen las pruebas manuales de
-persistencia contra la base de datos real.
-
-La aplicación todavía requiere comprobar su despliegue,
-seguridad y funcionamiento desde Internet.
-
-## 7. Conclusión
-Completar después de ejecutar y evaluar todas las pruebas.
+Las pruebas de rutas usan mocks de PostgreSQL, no prueban conexiones TLS, integridad real de migraciones, concurrencia, rendimiento, CORS desde Netlify ni un usuario real en producción. El MVP no incorpora recuperación/verificación de correo ni moderación robusta. Se recomienda beta controlada antes de hacer público el registro.
