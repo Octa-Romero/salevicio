@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 
     const resultado = await pool.query(
       `SELECT id, titulo, descripcion, genero,
-              plataforma, enlace, imagen
+              plataforma, enlace, imagen, desarrollador, lanzamiento
        FROM juegos
        WHERE titulo ILIKE $1
        ORDER BY id ASC
@@ -51,7 +51,7 @@ router.get('/:id', async (req, res) => {
 
     const resultado = await pool.query(
       `SELECT id, titulo, descripcion, genero,
-              plataforma, enlace, imagen
+              plataforma, enlace, imagen, desarrollador, lanzamiento
        FROM juegos
        WHERE id = $1`,
       [id]
