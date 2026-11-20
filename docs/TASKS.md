@@ -17,7 +17,7 @@
 
 ## Calidad y entrega
 - [x] T007 — Agregar pruebas y corregir errores.
-- [ ] T008 — Desplegar y finalizar documentación.
+- [x] T008 — Desplegar y completar documentación correspondiente.
 
 ## Criterio de finalización
 Una tarea se considera terminada cuando:

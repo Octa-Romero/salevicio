@@ -1,16 +1,85 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+# SaleVicio 🎮
 
-Currently, two official plugins are available:
+Plataforma comunitaria para descubrir, explorar
+y reseñar videojuegos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Descripción
 
-## React Compiler
+SaleVicio permite consultar un catálogo de videojuegos,
+buscar títulos, acceder a sus plataformas oficiales,
+guardar favoritos y publicar reseñas con puntuaciones.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tecnologías
 
-## Expanding the Oxlint configuration
+- React + Vite
+- Node.js + Express
+- PostgreSQL + Neon
+- Netlify (frontend)
+- Render (backend)
+- Git + GitHub
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Acceso público
+
+- Frontend: AGREGAR_URL_DE_NETLIFY
+- API: AGREGAR_URL_DE_RENDER
+- Estado de API: AGREGAR_URL_DE_RENDER/api/health
+
+## Ejecución local
+
+Requisitos: Node.js y npm.
+
+Backend:
+
+    cd backend
+    npm ci
+    npm run dev
+
+Frontend (otra terminal):
+
+    cd frontend
+    npm ci
+    npm run dev
+
+Configurar DATABASE_URL en backend/.env.
+Los archivos .env no se suben al repositorio.
+
+## Pruebas
+
+Backend:
+
+    cd backend
+    npm test
+
+Frontend:
+
+    cd frontend
+    npm run build
+
+El informe de pruebas está en docs/TEST_REPORT.md.
+
+## Documentación
+
+- docs/SPEC.md: requisitos y reglas de negocio.
+- docs/PLAN.md: planificación.
+- docs/TASKS.md: seguimiento de tareas.
+- docs/TEST_REPORT.md: pruebas realizadas.
+- AGENTS.md: instrucciones para agentes.
+
+## Limitaciones
+
+El prototipo utiliza un usuario de demostración
+compartido, sin registro ni autenticación individual.
+
+Los favoritos y reseñas son públicos y compartidos.
+No deben ingresarse datos personales.
+
+## Derechos de autor
+
+SaleVicio es un proyecto académico independiente.
+
+Los videojuegos mencionados pertenecen a sus
+respectivos titulares. La plataforma dirige a sus
+sitios oficiales y no distribuye sus ejecutables.
+
+Se utilizan recursos gráficos propios o autorizados.
