@@ -1,332 +1,64 @@
-
-import { useEffect, useState } from 'react';
+import {useCallback,useEffect,useMemo,useState} from 'react';
+import {getToken,setToken,request} from './api';
+import Icon from './Icon';
+import Login from './Login';
+import {Art,Detail,Library,Forums,Thread,News,Settings,Help} from './Paginas';
 import './App.css';
-import { Comunidad, BibliotecaDemo } from './Comunidad.jsx';
 
-const API_URL = (
-  import.meta.env.VITE_API_URL || 'http://localhost:3000'
-).replace(/\/$/, '');
+const principal=[['inicio','Inicio','home'],['catalogo','Videojuegos','games'],['biblioteca','Mi biblioteca','library'],['foros','Comunidad','chat'],['novedades','Novedades','news']];
+const secundario=[['configuracion','Configuración','settings'],['ayuda','Ayuda','help']];
 
-function TarjetaJuego({ juego, onVer }) {
-  return (
-    <article className="juego-card">
-      <div className={`juego-poster poster-${juego.id % 4}`}>
-        <span className="poster-etiqueta">{juego.genero}</span>
+function Card({juego,favorito,onJuego,onFavorito}){return <article className="game-card"><button className="art-btn" onClick={()=>onJuego(juego.id)} aria-label={`Ver ${juego.titulo}`}><Art juego={juego}/></button><div className="card-body"><div className="card-meta"><span>{juego.genero}</span><span>{juego.lanzamiento||'PC'}</span></div><button className="card-name" onClick={()=>onJuego(juego.id)}><h3>{juego.titulo}</h3></button><p>{juego.descripcion}</p><div className="card-actions"><button className="accent-link" onClick={()=>onJuego(juego.id)}>Ver juego <Icon name="arrow" size={17}/></button><button aria-label={favorito?'Quitar favorito':'Agregar favorito'} title="Favorito" className={`icon-btn heart ${favorito?'selected':''}`} onClick={()=>onFavorito(juego.id)}><Icon name="heart" size={19} fill={favorito?'currentColor':'none'}/></button></div></div></article>;}
 
-        <div className="poster-centro">
-          <span className="poster-simbolo">✦</span>
-          <h3>{juego.titulo}</h3>
-        </div>
-      </div>
-
-      <div className="juego-info">
-        <span className="plataforma">{juego.plataforma}</span>
-        <h3>{juego.titulo}</h3>
-        <p>{juego.descripcion}</p>
-
-        <button
-          className="btn-detalle"
-          onClick={() => onVer(juego.id)}
-        >
-          Ver videojuego <span>↗</span>
-        </button>
-      </div>
-    </article>
-  );
-}
-
-export default function App() {
-  const [juegos, setJuegos] = useState([]);
-  const [busqueda, setBusqueda] = useState('');
-  const [genero, setGenero] = useState('Todos');
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState('');
-  const [intentos, setIntentos] = useState(0);
-
-  const [vista, setVista] = useState('catalogo');
-  const [juegoActivo, setJuegoActivo] = useState(null);
-  const [detalleCargando, setDetalleCargando] = useState(false);
-  const [detalleError, setDetalleError] = useState('');
-  const [revisionFavoritos, setRevisionFavoritos] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function cargarCatalogo() {
-      setCargando(true);
-      setError('');
-
-      try {
-        const respuesta = await fetch(`${API_URL}/api/juegos`, {
-          signal: controller.signal
-        });
-
-        if (!respuesta.ok) {
-          throw new Error('No se pudo obtener el catálogo');
-        }
-
-        const datos = await respuesta.json();
-
-        if (!Array.isArray(datos)) {
-          throw new Error('La API devolvió datos inválidos');
-        }
-
-        setJuegos(datos);
-      } catch (err) {
-        if (!controller.signal.aborted) {
-          setError(err.message);
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setCargando(false);
-        }
-      }
-    }
-
-    cargarCatalogo();
-
-    return () => controller.abort();
-  }, [intentos]);
-
-  async function verJuego(id) {
-    setVista('detalle');
-    setJuegoActivo(null);
-    setDetalleError('');
-    setDetalleCargando(true);
-
-    try {
-      const respuesta = await fetch(`${API_URL}/api/juegos/${id}`);
-
-      if (!respuesta.ok) {
-        throw new Error('No se pudo obtener el videojuego');
-      }
-
-      const datos = await respuesta.json();
-      setJuegoActivo(datos);
-    } catch (err) {
-      setDetalleError(err.message);
-    } finally {
-      setDetalleCargando(false);
-    }
-  }
-
-  function volverCatalogo() {
-    setVista('catalogo');
-    setJuegoActivo(null);
-  }
-
-  const generos = [
-    'Todos',
-    ...new Set(juegos.map(j => j.genero).filter(Boolean))
-  ];
-
-  const juegosFiltrados = juegos.filter(juego => {
-    const coincideNombre = juego.titulo
-      .toLowerCase()
-      .includes(busqueda.toLowerCase());
-
-    const coincideGenero =
-      genero === 'Todos' || juego.genero === genero;
-
-    return coincideNombre && coincideGenero;
-  });
-
-  return (
-    <div className="app">
-      <header className="header">
-        <div className="contenedor nav">
-          <button className="logo" onClick={volverCatalogo}>
-            <span className="logo-icono">S</span>
-            <span>Sale<span className="texto-acento">Vicio</span></span>
-          </button>
-
-          <div className="nav-derecha">
-            <span className="nav-subtitulo">
-              Tu comunidad gamer
-            </span>
-            <button className="btn-nav" onClick={volverCatalogo}>
-              Catálogo
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="contenedor">
-        {vista === 'catalogo' ? (
-          <>
-            <section className="hero">
-              <div className="hero-contenido">
-                <span className="eyebrow">BIENVENIDO A SALEVICIO</span>
-                <h1>
-                  Encontrá tu próximo
-                  <span className="texto-acento"> juegazo.</span>
-                </h1>
-                <p>
-                  Explorá videojuegos, descubrí nuevas aventuras
-                  y encontrá dónde jugarlos.
-                  Una comunidad hecha por y para gamers.
-                </p>
-                <a className="btn-principal" href="#catalogo">
-                  Explorar videojuegos ↓
-                </a>
-              </div>
-              <div className="hero-decoracion" aria-hidden="true">
-                <span>SV</span>
-              </div>
-            </section>
-                <BibliotecaDemo
-                  onVer={verJuego}
-                  revision={revisionFavoritos}
-                />
-            <section id="catalogo" className="catalogo">
-              <div className="seccion-titulo">
-                <div>
-                  <span className="eyebrow">EXPLORÁ</span>
-                  <h2>Biblioteca de videojuegos</h2>
-                  <p>
-                    Descubrí títulos y accedé a sus plataformas
-                    oficiales.
-                  </p>
-                </div>
-
-                <span className="contador">
-                  {juegos.length} juegos
-                </span>
-              </div>
-
-              <div className="buscador">
-                <span>⌕</span>
-                <input
-                  type="search"
-                  placeholder="Buscar un videojuego..."
-                  aria-label="Buscar videojuegos"
-                  value={busqueda}
-                  onChange={e => setBusqueda(e.target.value)}
-                />
-              </div>
-
-              <div className="filtros">
-                {generos.map(item => (
-                  <button
-                    key={item}
-                    className={
-                      genero === item
-                        ? 'filtro activo'
-                        : 'filtro'
-                    }
-                    onClick={() => setGenero(item)}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-
-              {cargando ? (
-                <div className="mensaje-estado">
-                  Cargando videojuegos...
-                </div>
-              ) : error ? (
-                <div className="mensaje-estado">
-                  <p>{error}</p>
-                  <button
-                    className="btn-principal"
-                    onClick={() => setIntentos(i => i + 1)}
-                  >
-                    Reintentar conexión
-                  </button>
-                </div>
-              ) : juegosFiltrados.length === 0 ? (
-                <div className="mensaje-estado">
-                  No encontramos videojuegos con esos filtros.
-                </div>
-              ) : (
-                <div className="juegos-grid">
-                  {juegosFiltrados.map(juego => (
-                    <TarjetaJuego
-                      key={juego.id}
-                      juego={juego}
-                      onVer={verJuego}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-          </>
-        ) : (
-          <section className="detalle">
-            <button
-              className="btn-volver"
-              onClick={volverCatalogo}
-            >
-              ← Volver al catálogo
-            </button>
-
-            {detalleCargando ? (
-              <div className="mensaje-estado">
-                Cargando videojuego...
-              </div>
-            ) : detalleError ? (
-              <div className="mensaje-estado">
-                {detalleError}
-              </div>
-            ) : juegoActivo ? (
-              <div className="detalle-panel">
-                <div
-                  className={
-                    `detalle-poster poster-${juegoActivo.id % 4}`
-                  }
-                >
-                  <span className="poster-simbolo">✦</span>
-                  <h2>{juegoActivo.titulo}</h2>
-                </div>
-
-                <div className="detalle-info">
-                  <span className="eyebrow">
-                    FICHA DEL VIDEOJUEGO
-                  </span>
-                  <h1>{juegoActivo.titulo}</h1>
-
-                  <div className="detalle-tags">
-                    <span>{juegoActivo.genero}</span>
-                    <span>{juegoActivo.plataforma}</span>
-                  </div>
-
-                  <p>{juegoActivo.descripcion}</p>
-
-                  <a
-                    className="btn-principal"
-                    href={juegoActivo.enlace}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Abrir página oficial ↗
-                  </a>
-
-                  <p className="detalle-nota">
-                    El enlace abre una plataforma externa.
-                  </p>
-                </div>
-                    <Comunidad
-                    juego={juegoActivo}
-                    onCambioFavoritos={() =>
-                      setRevisionFavoritos(valor => valor + 1)
-                    }
-                  />
-              </div>
-            ) : null}
-          </section>
-        )}
-      </main>
-
-      <footer className="footer">
-        <div className="contenedor footer-contenido">
-          <span>SaleVicio © 2026</span>
-          <span>
-            Comunidad independiente de videojuegos.
-            No afiliada a las tiendas enlazadas.
-          </span>
-        </div>
-      </footer>
-    </div>
-  );
+export default function App(){
+ const [vista,setVista]=useState('inicio'),[menu,setMenu]=useState(false),[login,setLogin]=useState(false);
+ const [usuario,setUsuario]=useState(null),[recuperando,setRecuperando]=useState(Boolean(getToken()));
+ const [juegos,setJuegos]=useState([]),[favoritos,setFavoritos]=useState([]),[cargando,setCargando]=useState(true),[error,setError]=useState(''),[reload,setReload]=useState(0),[reloadFav,setReloadFav]=useState(0);
+ const [search,setSearch]=useState(''),[genero,setGenero]=useState('Todos'),[juegoId,setJuegoId]=useState(null),[hiloId,setHiloId]=useState(null),[filtroForo,setFiltroForo]=useState(null);
+ const [aviso,setAviso]=useState(''),[slide,setSlide]=useState(0),[theme,setTheme]=useState(()=>{try{return localStorage.getItem('salevicio_theme')||'dark';}catch{return 'dark';}});
+ useEffect(()=>{document.documentElement.dataset.theme=theme;try{localStorage.setItem('salevicio_theme',theme);}catch{/* privacidad */}},[theme]);
+ useEffect(()=>{window.scrollTo({top:0,behavior:'instant'});},[vista,juegoId,hiloId]);
+ useEffect(()=>{if(!getToken())return;let active=true;request('/api/auth/me').then(x=>active&&setUsuario(x.usuario)).catch(e=>{if(active){if(e.status===401)setToken(null);else setAviso('No se pudo restaurar la sesión; podés reintentar cuando Render termine de iniciar.');}}).finally(()=>active&&setRecuperando(false));return()=>{active=false;};},[]);
+ useEffect(()=>{const controller=new AbortController();setCargando(true);request('/api/juegos',{publico:true,signal:controller.signal}).then(x=>{if(!controller.signal.aborted){setJuegos(x);setError('');}}).catch(e=>{if(!controller.signal.aborted)setError(e.message);}).finally(()=>{if(!controller.signal.aborted)setCargando(false);});return()=>controller.abort();},[reload]);
+ useEffect(()=>{if(!usuario){setFavoritos([]);return;}let active=true;request('/api/favoritos').then(x=>active&&setFavoritos(x)).catch(e=>{if(active){if(e.status===401){setToken(null);setUsuario(null);}else setAviso(e.message);}});return()=>{active=false;};},[usuario,reloadFav]);
+ const destacados=usuario&&favoritos.length?favoritos:[];
+ useEffect(()=>{setSlide(0);},[favoritos.length,usuario]);
+ useEffect(()=>{if(destacados.length<2)return;const timer=setInterval(()=>setSlide(n=>(n+1)%destacados.length),6500);return()=>clearInterval(timer);},[destacados.length]);
+ const destacado=destacados.length?destacados[slide%destacados.length]:null;
+ const generos=useMemo(()=>['Todos',...new Set(juegos.map(j=>j.genero).filter(Boolean))],[juegos]);
+ const filtrados=useMemo(()=>juegos.filter(j=>j.titulo.toLowerCase().includes(search.toLowerCase())&&(genero==='Todos'||j.genero===genero)),[juegos,search,genero]);
+ const juegoActual=juegos.find(j=>j.id===juegoId);
+ const navegar=useCallback(id=>{setVista(id);setMenu(false);if(id==='foros')setFiltroForo(null);},[]);
+ const verJuego=useCallback(id=>{setJuegoId(Number(id));setVista('detalle');setMenu(false);},[]);
+ const verHilo=useCallback(id=>{setHiloId(id);setVista('hilo');setMenu(false);},[]);
+ const irForo=useCallback(id=>{setFiltroForo(id);setVista('foros');},[]);
+ function autenticar(datos){setToken(datos.token);setUsuario(datos.usuario);setLogin(false);setVista('biblioteca');setAviso(`¡Bienvenido, ${datos.usuario.nombre}!`);}
+ async function salir(){try{await request('/api/auth/logout',{method:'POST'});}catch{/* la sesión local igualmente termina */}setToken(null);setUsuario(null);setFavoritos([]);setVista('inicio');setAviso('Sesión cerrada en este dispositivo.');}
+ async function favorito(id){if(!usuario){setLogin(true);return;}const existe=favoritos.some(j=>j.id===id);try{await request(existe?`/api/favoritos/${id}`:'/api/favoritos',{method:existe?'DELETE':'POST',...(!existe?{body:{juego_id:id}}:{})});setReloadFav(n=>n+1);setAviso(existe?'Eliminado de tu biblioteca':'Guardado en tu biblioteca');}catch(e){setAviso(e.message);}}
+ const titulo=({inicio:'Tu universo de videojuegos',catalogo:'Catálogo',biblioteca:'Mi biblioteca',foros:'Comunidad',novedades:'Novedades',configuracion:'Configuración',ayuda:'Ayuda',detalle:'Ficha de juego',hilo:'Conversación'})[vista];
+ const tarjetas=lista=><div className="cards">{lista.map(j=><Card key={j.id} juego={j} favorito={favoritos.some(f=>f.id===j.id)} onJuego={verJuego} onFavorito={favorito}/>)}</div>;
+ return <div className="app-shell">
+  {menu&&<div className="side-backdrop" onClick={()=>setMenu(false)}/>}
+  <aside className={`sidebar ${menu?'open':''}`}>
+   <button className="logo" onClick={()=>navegar('inicio')}><span className="logo-badge">S<span>V</span></span><span className="logo-word">SALE<span>VICIO</span><small>GAMING COMMUNITY</small></span></button>
+   <button className="icon-btn side-close" onClick={()=>setMenu(false)} aria-label="Cerrar menú"><Icon name="close"/></button>
+   <div className="profile"><div className="profile-avatar">{usuario?usuario.nombre[0].toUpperCase():'✦'}</div><strong>{usuario?usuario.nombre:'Hola, gamer'}</strong><small>{usuario?'MIEMBRO DE SALEVICIO':'EXPLORADOR INVITADO'}</small><div className="profile-stats"><div><b>{usuario?favoritos.length:'—'}</b><span>Favoritos</span></div><div><b>{usuario?'✓':'∞'}</b><span>{usuario?'Cuenta activa':'Por descubrir'}</span></div></div>{!usuario&&<button className="profile-btn" onClick={()=>{setLogin(true);setMenu(false);}}>Crear cuenta <Icon name="arrow" size={15}/></button>}</div>
+   <nav className="nav-group"><span className="nav-caption">EXPLORAR</span>{principal.map(([id,txt,i])=><button key={id} className={`nav-link ${vista===id?'active':''}`} onClick={()=>navegar(id)}><Icon name={i} size={20}/>{txt}</button>)}</nav>
+   <nav className="nav-group nav-extra"><span className="nav-caption">TU CUENTA</span>{secundario.map(([id,txt,i])=><button key={id} className={`nav-link ${vista===id?'active':''}`} onClick={()=>navegar(id)}><Icon name={i} size={20}/>{txt}</button>)}</nav>
+   <div className="sidebar-bottom"><button onClick={()=>usuario?salir():setLogin(true)}><Icon name={usuario?'logout':'user'} size={18}/>{usuario?'Cerrar sesión':'Iniciar sesión'}</button><small>SALE VICIO · EST. 2026</small></div>
+  </aside>
+  <div className="main-area"><header className="topbar"><div className="top-left"><button className="icon-btn mobile-menu" onClick={()=>setMenu(true)} aria-label="Abrir menú"><Icon name="menu" size={23}/></button><span className="crumb">SALE VICIO <span>›</span> <strong>{titulo}</strong></span></div><div className="top-right"><span className="live-dot">GAMING HUB</span><button className="search-short" onClick={()=>navegar('catalogo')}><Icon name="search" size={18}/> Buscar juegos... </button><button className="top-user" onClick={()=>usuario?navegar('biblioteca'):setLogin(true)}><span className="avatar">{usuario?usuario.nombre[0].toUpperCase():<Icon name="user" size={18}/>}</span><strong>{usuario?usuario.nombre:'Ingresar'}</strong></button></div></header>
+  <main className="content">{aviso&&<div className="toast" role="status">{aviso}<button onClick={()=>setAviso('')} aria-label="Cerrar aviso"><Icon name="close" size={16}/></button></div>}{recuperando&&<p className="muted">Verificando sesión...</p>}
+   {vista==='inicio'&&<><section className="hero"><div className="hero-visual"/><div className="hero-copy"><span className="hero-label">✦ {destacado?'DE TU COLECCIÓN':'BIENVENIDO A TU UNIVERSO GAMER'}</span><span className="hero-micro">S A L E <em>V I C I O</em></span><h1>{destacado?<>Volvé a ese <em>juegazo.</em></>:<>Tu próximo <em>juegazo</em> te espera.</>}</h1><p>{destacado?`Tenés ${destacado.titulo} en tu biblioteca. Descubrí qué opina la comunidad.`:'Un universo de historias por descubrir, opiniones reales y juegos que merecen tu atención. Tu comunidad empieza acá.'}</p><div className="hero-actions"><button className="btn gold" onClick={()=>destacado?verJuego(destacado.id):navegar('catalogo')}>{destacado?'Explorar favorito':'Explorar juegos'} <Icon name="arrow" size={18}/></button><small>{destacado?destacado.titulo:'DESCUBRÍ · GUARDÁ · COMPARTÍ'}</small></div></div>{destacados.length>1&&<div className="slider-dots">{destacados.slice(0,8).map((j,i)=><button key={j.id} aria-label={`Ver ${j.titulo}`} className={i===slide?'active':''} onClick={()=>setSlide(i)}/>)}</div>}<small className="hero-watermark">SV / EXPERIENCE 2.0</small></section><section className="home-block"><div className="section-head"><div><span className="eyebrow">ELEGIDOS PARA EXPLORAR</span><h2>Descubrí algo <em>increíble.</em></h2><p>Una selección de videojuegos para tu próxima aventura.</p></div><button className="accent-link" onClick={()=>navegar('catalogo')}>Ver catálogo completo <Icon name="arrow" size={17}/></button></div>{cargando?<div className="empty">Cargando juegos...</div>:error?<div className="empty">{error}<button className="btn gold" onClick={()=>setReload(n=>n+1)}>Reintentar</button></div>:tarjetas(juegos.slice(0,6))}</section><section className="promo"><span className="eyebrow">MÁS QUE UN CATÁLOGO</span><h2>Los juegos se disfrutan <em>en comunidad.</em></h2><p>Compartí reseñas y consejos, y conversá con jugadores de tus videojuegos favoritos.</p><button className="btn blue" onClick={()=>navegar('foros')}>Explorar foros <Icon name="arrow" size={17}/></button><div className="promo-art">✦</div></section></>}
+   {vista==='catalogo'&&<div className="page"><span className="eyebrow">EXPLORÁ NUEVAS AVENTURAS</span><div className="page-head"><div><h1 className="page-title">Biblioteca de <em>videojuegos.</em></h1><p className="page-sub">Descubrí, investigá y guardá tus próximos favoritos.</p></div><small className="count">{filtrados.length} títulos</small></div><div className="big-search"><Icon name="search" size={21}/><input type="search" aria-label="Buscar juegos" placeholder="Buscar un videojuego..." value={search} onChange={e=>setSearch(e.target.value)}/></div><div className="filters">{generos.map(g=><button key={g} className={g===genero?'active':''} onClick={()=>setGenero(g)}>{g}</button>)}</div>{error?<div className="empty">{error}<button className="btn gold" onClick={()=>setReload(n=>n+1)}>Reintentar</button></div>:cargando?<div className="empty">Cargando...</div>:filtrados.length?tarjetas(filtrados):<div className="empty">No encontramos títulos con esos filtros.</div>}</div>}
+   {vista==='detalle'&&(juegoActual?<Detail key={juegoActual.id} juego={juegoActual} usuario={usuario} favorito={favoritos.some(j=>j.id===juegoActual.id)} onFavorito={favorito} onLogin={()=>setLogin(true)} onForo={irForo} onVolver={()=>navegar('catalogo')}/>:<div className="page empty">Juego no encontrado. <button onClick={()=>navegar('catalogo')}>Volver</button></div>)}
+   {vista==='biblioteca'&&<Library usuario={usuario} favoritos={favoritos} onLogin={()=>setLogin(true)} onJuego={verJuego} onHilo={verHilo}/>}
+   {vista==='foros'&&<Forums usuario={usuario} juegos={juegos} filtroInicial={filtroForo} onHilo={verHilo} onLogin={()=>setLogin(true)}/>}
+   {vista==='hilo'&&<Thread id={hiloId} usuario={usuario} onVolver={()=>navegar('foros')} onLogin={()=>setLogin(true)} onEliminar={()=>navegar('foros')}/>}
+   {vista==='novedades'&&<News/>}
+   {vista==='configuracion'&&<Settings usuario={usuario} theme={theme} onTheme={setTheme} onLogout={salir} onLogin={()=>setLogin(true)}/>}
+   {vista==='ayuda'&&<Help/>}
+  </main><footer className="footer"><span>© 2026 SALEVICIO · HECHO PARA JUGADORES</span><span>Comunidad independiente. Enlaces a sitios oficiales.</span></footer></div>
+  <Login abierto={login} cerrar={()=>setLogin(false)} exito={autenticar}/>
+ </div>;
 }
